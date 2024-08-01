@@ -1,0 +1,164 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<head>
+		<div th:replace="fragments/fragments :: head">
+		</div>
+	</head>
+</head>
+
+<body>
+
+	<header>
+			<div th:replace="fragments/fragments :: header">
+			</div>
+		</header>
+<main>
+	<section>
+		<div class="container mt-5">
+			<div class="row">
+				<div class=" col-lg-12 mt-1">
+					
+					<!-- FOR USER -->
+					
+					<div class="col-12 mb-4	d-flex justify-content-center" sec:authorize="hasAuthority('USER')">
+						<h1>Aggiornamento Ticket</h1>
+					</div>
+					<!-- for USER ticket: title and description -->
+					<div sec:authorize="hasAuthority('USER')" th:if="${userTicketPresent}">
+						<div class="col-12">
+							<label> Titolo </label>
+							<p th:text="${ticket.title}"></p>
+						</div>
+						<div class="col-12 mt-4">
+							<label> Descrizione: </label>
+							<p th:text="${ticket.description}"></p><br>
+						</div>
+						<div class="col-12 mt-4">
+							<label> Data Entro Chisura Ticket: </label>
+							<p th:text="${ticket.endDate}"></p><br>
+						</div>
+					</div>
+						
+						<div class="mt-3" th:unless="${userTicketPresent}">
+							<h1>Questo ticket che cerchi non esiste per te</h1>
+						</div>
+
+							<!-- FOR ADMIN -->
+
+							<div class="col-12 mb-4	d-flex justify-content-center" sec:authorize="hasAuthority('ADMIN')">
+								<h1 th:if="${addMode}">Crea ticket</h1>
+								<h1 th:unless="${addMode}">Modifica ticket</h1>
+							</div>
+
+							<!-- FORM PER TUTTI-->
+							<form th:if="${userTicketPresent}"  id="form_ticket" th:object="${ticket}"
+								th:action="${addMode} ? @{/tickets/addticket} : @{/tickets/editticket/{id} (id=${ticket.id})}"
+								method="post">
+								<div class="col-12" sec:authorize="hasAuthority('ADMIN')">
+									<label for="title"> Titolo </label>
+									<input type="text" maxlength="100" id="title" placeholder="titolo"
+										th:field="*{title}" th:errorClass="is-invalid">
+									<div th:if="${#fields.hasErrors('title')}" class="invalid-feedback">
+										<ul>
+											<li th:each="err : ${#fields.errors('title')}" th:text="${err}"></li>
+										</ul>
+									</div>
+								</div>
+								<div class="col-12 mt-4" sec:authorize="hasAuthority('ADMIN')">
+									<label for="description"> Descrizione </label>
+									<textarea class="form-control" id="description" placeholder="descrizione ticket"
+										maxlength="600000" th:field="*{description}"
+										th:errorClass="is-invalid"></textarea><br>
+									<div th:if="${#fields.hasErrors('description')}" class="invalid-feedback">
+										<ul>
+											<li th:each="err : ${#fields.errors('description')}" th:text="${err}"></li>
+										</ul>
+									</div>
+								</div>
+								<div class="col-12 mt-4" th:if="${!addMode}">
+									<label for="endDate"> Data inizio lavoro su ticket: </label>
+									<input type="date" id="startDate" placeholder="data inizio" th:field="*{startDate}"
+										th:errorClass="is-invalid"><br>
+									<div th:if="${#fields.hasErrors('startDate')}" class="invalid-feedback">
+										<ul>
+											<li th:each="err : ${#fields.errors('startDate')}" th:text="${err}"></li>
+										</ul>
+									</div>
+								</div>
+								<div class="col-12 mt-4" sec:authorize="hasAuthority('ADMIN')">
+									<label for="endDate" > Data entro chiusura ticket: </label>
+									<input type="date" id="endDate" placeholder="data fine" th:field="*{endDate}"
+										th:errorClass="is-invalid"><br>
+									<div th:if="${#fields.hasErrors('endDate')}" class="invalid-feedback">
+										<ul>
+											<li th:each="err : ${#fields.errors('endDate')}" th:text="${err}"></li>
+										</ul>
+									</div>
+								</div>
+								<div class="col-12 mt-4">
+									<label for="statusTicket"> Stato Ticket </label>
+									<select id="statusTicket" th:field="*{statusTicket}">
+										<option th:value="'aperto'" >aperto</option>
+										<option th:if="${!addMode}" th:value="'in_corso'" > in corso</option>
+										<option th:if="${!addMode}" th:value="'chiuso'" > chiuso</option>
+									</select>
+								</div>
+								<div class="col-12 mt-4" th:if="${!addMode}">
+									<label for="title"> Ore lavorate: </label>
+									<input type="number"  max="160" id="title" placeholder="ore" th:field="*{timeWorked}"
+										th:errorClass="is-invalid">
+									<div th:if="${#fields.hasErrors('timeWorked')}" class="invalid-feedback">
+										<ul>
+											<li th:each="err : ${#fields.errors('timeWorked')}" th:text="${err}"></li>
+										</ul>
+									</div>
+								</div>
+								<div class="col-12 mt-4" sec:authorize="hasAuthority('ADMIN')">
+									<label for="categoria"> Categoria: </label>
+									<ul th:each="categoria : ${categoryList}">
+										<input th:text="${categoria.name}" th:value="${categoria.id}" th:type="checkbox"
+											th:field="*{categories}" th:unchecked="${categoria}  " />
+									</ul>
+								</div>
+								<div class="col-12 mt-4" sec:authorize="hasAuthority('ADMIN')">
+									<label for="usersAvailable"> Operatori disponibili: </label>
+									<select id="usersAvailable" th:field="*{user}">
+										<option th:each="users : ${usersAvailable}" th:value="${users.id}"
+											th:text="${users.name} + ' ' + ${users.surname} + ' ' + ${users.email}">
+										</option>
+									</select>
+								</div>
+								<div sec:authorize="hasAuthority('USER')">
+									<input type="hidden" th:field="*{title}" id="ticket">
+									<input type="hidden" th:field="*{description}" id="ticket">
+									<input type="hidden" th:field="*{endDate}" id="ticket">
+									<input type="hidden" th:field="*{user}" id="ticket">
+									<input type="hidden" th:field="*{categories}" id="ticket">
+								</div>
+								<div class="col-12 mt-4">
+									<ul>
+										<li style="color: red;" th:each="err : ${#fields.allErrors()}" th:text="${err}">
+										</li>
+									</ul>
+								</div>
+								<div class="col-12 mt-4">
+									<div th:if="${addMode}">
+										<button class="mt-2" type="submit">Aggiungi</button>
+									</div>
+									<div th:unless="${addMode}">
+										<button class="mt-2" type="submit">Modifica</button>
+									</div>
+								</div>
+							</form>
+						</div>
+				</div>
+			</div>
+	</section>
+</main>
+	<script th:src="@{/webjars/bootstrap/5.1.3/js/bootstrap.bundle.min.js}"></script>
+
+</body>
+
+</html>

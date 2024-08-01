@@ -1,0 +1,59 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<div th:replace="fragments/fragments :: head">
+	</div>
+</head>
+
+<body>
+	<!-- HEADER -->
+	<header>
+			<div th:replace="fragments/fragments :: header">
+			</div>
+		</header>
+
+	<!--MAIN -->
+	<main>
+		<section>
+			<div class="container mt-5">
+				<div class="row">
+					<div class=" col-lg-9 mt-1">
+						<div class="col-12 mb-2	d-flex justify-content-center">
+							<h1>Lista Users</h1>
+						</div>
+						<div class="col-12">
+							<table id="table-1" class="table table-striped">
+								<thead>
+									<tr>
+										<th>NOME</th>
+										<th>COGNOME</th>
+										<th>USERNAME</th>
+										<th>STATO</th>
+										<th>DATI</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="user : ${usersList}">
+										<td th:text="${user.name}"></td>
+										<td th:text="${user.surname}"></td>
+										<td th:text="${user.username}"></td>
+										<td th:if="${user.activeState}">disponibile</td>
+										<td th:unless="${user.activeState}">non disponibile</td>										
+										<td>
+											<a th:href="@{/users/datauser/{id}(id =${user.id})}">
+												<span>Visualizza</span>
+											</a>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+	
+	<script th:src="@{/webjars/bootstrap/5.1.3/js/bootstrap.bundle.min.js}"></script>
+</body>
+
+</html>

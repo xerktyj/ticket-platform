@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<head>
+		<div th:replace="fragments/fragments :: head">
+		</div>
+	</head>
+</head>
+
+<body>
+	<header>
+		<div th:replace="fragments/fragments :: header">
+		</div>
+	</header>
+	
+	<main>
+		<section>
+			<div class="container mt-2">
+				<div class="row">
+					<div class=" col-lg-12 mt-1">
+						<div class="col-12 mb-2	d-flex justify-content-center">
+							<h1>User</h1>
+						</div>
+						<div class="col-12" th:if="${user != null} and ${availableToSee} ">
+							<div class="card mb-4">
+								<h3>Username: </h3> <span th:text="${user.username}"> </span>
+								<h3>Password: </h3> <span th:text="${user.password}"> </span>
+								<h3>Nome: </h3> <span th:text="${user.name}"> </span>
+								<h3>Cognome: </h3> <span th:text="${user.surname}"> </span>								
+								<h3>Email: </h3> <span th:text="${user.email}"> </span>
+								<h3 th:if="${user.activeState}">Stato Attività: </h3> <span  th:if="${user.activeState}"  >disponibile  </span>
+								<h3 th:if="${!user.activeState}">Stato Attività: </h3> <span  th:if="${!user.activeState}" >non disponibile </span>
+								<h3>Ruoli:</h3>
+								<ul th:each="roles : ${user.roles}">
+									<li th:text="${roles.name}"></li>																																							
+								</ul>
+							</div>
+							<div>
+									<h5>Modifica User:</h5>
+									<a th:href="@{/users/datauser/edituser/{id} (id=${user.id}) }" class="btn btn-primary mb-2">Modifica</a>
+									<form sec:authorize="hasAuthority('ADMIN')" th:action="@{/users/deleteuser/{id} (id=${user.id})}" method="post">
+										<button class="btn btn-danger" type="submit"
+											th:data-confirm-delete="|Sei sicuro di voler cancellare questo user?|"
+											onclick="if(!confirm(this.getAttribute('data-confirm-delete')))return false">Delete</button>
+									</form>
+								</div>
+						</div>
+							<div class="col-12"	th:if="${deleteCorrect}">
+								<h1>Hai cancellato user correttamente</h1>
+							</div>
+							<div class="col-12" th:if="${deleteError}">
+								<h1>Non puoi cancellare questo user perchè ha associato dei ticket</h1>
+							</div>
+							<div class="col-12" th:unless="${availableToSee}">
+								<h1>Non puoi vedere questo user</h1>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+	
+	
+	
+	
+	
+	
+	<script th:src="@{/webjars/bootstrap/5.1.3/js/bootstrap.bundle.min.js}"></script>
+	
+</body>
+	
+</html>

@@ -1,0 +1,84 @@
+!DOCTYPE html>
+<html>
+
+
+<body>
+
+	<!--fragment per head -->
+
+	<div th:fragment="head">
+			<meta charset="utf-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<link th:rel="stylesheet" th:href="@{/webjars/bootstrap/5.1.3/css/bootstrap.min.css}" />
+			<title>Software House </title>
+	</div>
+	
+	<!-- fragment per HEADER -->
+	<div th:fragment="header">
+		<nav class="navbar navbar-expand-sm bg-dark">
+			<div class="container-fluid">
+				<button class="navbar-toggler bg-secondary" type="button" data-bs-toggle="collapse"
+					data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+					aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon "></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+					<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+						<li class="nav-item">
+							<a class="nav-link" style="color: white;" th:href="@{/home}">Home</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" style="color: white;" th:href="@{/tickets}">Lista Tickets</a>
+						</li>
+						<li class="nav-item" sec:authorize="hasAuthority('ADMIN')">
+							<a class="nav-link" style="color: white;" th:href="@{/users/list}">Lista Operatori</a>
+						</li>
+						<li class="nav-item" sec:authorize="hasAuthority('ADMIN')">
+							<a class="nav-link" style="color: white;" th:href="@{/categories/list}">Lista Categorie</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" style="color: white;" href="#">Contatti</a>
+						</li>
+						<li class="nav-item dropdown" sec:authorize="hasAuthority('ADMIN')">
+							<a class="nav-link dropdown-toggle" href="#" style="color: white;" role="button"
+								data-bs-toggle="dropdown" aria-expanded="false">
+								Menu
+							</a>
+							<ul class="dropdown-menu">
+								<li><a class="dropdown-item" th:href="@{/tickets/addticket}">Aggiungi Ticket</a></li>
+								<li><a class="dropdown-item" th:href="@{/users/adduser}">Aggiungi Operatore</a></li>
+								<li><a class="dropdown-item" th:href="@{/categories/addcategory}">Aggiungi Categoria</a></li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</div>
+	
+		
+	<!--fragment per footer -->
+	
+	<div th:fragment="footer">
+		<nav class="navbar bg-black">
+			<div class="container-fluid justify-content-center">
+				<p class="navbar-brand bi bi-c-circle fs-6 text-white"> 2024 - Tutti i diritti sono riservati</p>
+			</div>
+		</nav>
+	</div>
+	
+		
+		
+		<!-- fragment per tickets -->
+		<div th:fragment="categoriesList">
+			<ul th:each="category : ${categoriesList}">
+				<a style="color: black;" th:href="@{/categories/datacategory/{id}(id =${category.id})}">
+					<li th:text="${category.name}">
+					</li>
+				</a> 
+			</ul>
+		</div>
+	
+</body>
+
+</html>

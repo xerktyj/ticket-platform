@@ -1,0 +1,68 @@
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<div th:replace="fragments/fragments :: head">
+	</div>
+</head>
+
+<body>
+	<!-- HEADER -->
+	<header>
+		<div th:replace="fragments/fragments :: header">
+		</div>
+	</header>
+
+	<!--MAIN -->
+	<main>
+		<section>
+			<div class="container mt-5">
+				<div class="row">
+					<div class=" col-lg-9 mt-1">
+						<div class="col-12 mb-2	d-flex justify-content-center" >
+							<h1>Lista Tickets</h1>
+						</div>
+						<form th:action="@{/tickets}" method="get">
+							Title: <input type="text" name="name"><br>
+							<button class="mt-2" type="submit">cerca ticket</button>
+						</form>
+						<div class="col-12" >
+							<table id="table-1" class="table table-striped" th:unless="${ticketList.isEmpty()}">
+								<thead>
+									<tr>
+										<th>TITOLO</th>
+										<th>ASSEGNATO A</th>
+										<th>STATUS</th>
+										<th>CATEGORIA</th>
+										<th>SCADENZA</th>
+										<th>DATI<th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="tickets : ${ticketList}">
+										<td th:text="${tickets.title}"></td>
+										<td th:text="${tickets.user.username}"></td>
+										<td th:text="${tickets.statusTicket}"></td>
+										<td th:text="${tickets.categories}"></td>
+										<td th:text="${tickets.endDate}"></td>
+										<td>
+											<a th:href="@{/tickets/{ticketId}(ticketId =${tickets.id})}">
+												<span>Visualizza</span>
+											</a> 
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<div th:if="${ticketList.isEmpty()}">
+								<h1>La lista  ticket è vuota</h1>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<script th:src="@{/webjars/bootstrap/5.1.3/js/bootstrap.bundle.min.js}"></script>
+</body>
+						</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<head>
+		<div th:replace="fragments/fragments :: head">
+		</div>
+	</head>
+</head>
+
+<body>
+
+	<header>
+		<div th:replace="fragments/fragments :: header">
+				</div>
+	</header>
+
+<main>
+	<section>
+		<div class="container mt-5">
+			<div class="row">
+				<div class=" col-lg-12 mt-1">
+					<div class="col-12 mb-4	d-flex justify-content-center">
+						<h1 th:if="${addMode}">Crea user</h1>
+						<h1 th:unless="${addMode}"> Modifica user</h1>
+					</div>
+					<div>
+						<h1 th:unless="	${availableToFillIn}"> Non puoi modificare questo user</h1>
+					</div>
+					<div th:if="${availableToFillIn}">
+						<form id="formNote" th:object="${user}"
+							th:action="${addMode} ? @{/users/adduser} : @{/users/datauser/edituser/{id} (id=${user.id})}"
+							method="post">
+							<div class="col-12" sec:authorize="hasAuthority('ADMIN')">
+								<label for="username"> Username: </label>
+								<input type="text" id="username" placeholder="username" th:field="*{username}"
+									th:errorClass="is-invalid">
+								<div th:if="${#fields.hasErrors('username')}" class="invalid-feedback">
+									<ul>
+										<li th:each="err : ${#fields.errors('title')}" th:text="${err}"></li>
+									</ul>
+								</div>
+							</div>
+							<div class="col-12 mt-4">
+								<label for="password"> Password: </label>
+								<input type="text" id="password" placeholder="password" th:field="*{password}"
+																	th:errorClass="is-invalid"><br>
+								<div th:if="${#fields.hasErrors('password')}" class="invalid-feedback">
+									<ul>
+										<li th:each="err : ${#fields.errors('password')}" th:text="${err}"></li>
+									</ul>
+								</div>
+							</div>
+							<div class="col-12 mt-4" sec:authorize="hasAuthority('ADMIN')">
+								<label for="name"> Nome: </label>
+								<input type="text" id="name" placeholder="nome" th:field="*{name}" th:errorClass="is-invalid"><br>
+								<div th:if="${#fields.hasErrors('name')}" class="invalid-feedback">
+									<ul>
+										<li th:each="err : ${#fields.errors('name')}" th:text="${err}"></li>
+									</ul>
+								</div>
+							</div>
+							<div class="col-12 mt-4" sec:authorize="hasAuthority('ADMIN')">
+								<label for="surname"> Cognome: </label>
+								<input type="text" id="surname" placeholder="cognome" th:field="*{surname}" th:errorClass="is-invalid"><br>
+								<div th:if="${#fields.hasErrors('surname')}" class="invalid-feedback">
+									<ul>
+										<li th:each="err : ${#fields.errors('surname')}" th:text="${err}"></li>
+									</ul>
+								</div>
+							</div>
+							<div class="col-12 mt-4" sec:authorize="hasAuthority('ADMIN')">
+								<label for="email"> Email: </label>
+								<input type="text" id="email" placeholder="email" th:field="*{email}" th:errorClass="is-invalid"><br>
+								<div th:if="${#fields.hasErrors('email')}" class="invalid-feedback">
+									<ul>
+										<li th:each="err : ${#fields.errors('email')}" th:text="${err}"></li>
+									</ul>
+								</div>
+							</div>
+							<div class="col-12 mt-4">
+								<label for="activeState"> Stato Attività: </label>
+								<select id="activeState" th:field="*{activeState}">
+									<option  th:value="true" >disponibile</option>
+									<option  th:value="false" >non disponibile</option>
+								</select>
+							</div>
+							<div class="col-12 mt-4" sec:authorize="hasAuthority('ADMIN')">
+								<label for="roles"> Ruoli: </label>
+								<ul th:each="roles : ${rolesList}">
+									<input th:text="${roles.name}" th:value="${roles.id}" th:type="checkbox" th:field="*{roles}"
+										th:unchecked="${roles}  " />
+								</ul>
+							</div>
+							<div sec:authorize="hasAuthority('USER')">
+								<input type="hidden" th:field="*{name}" id="user">
+								<input type="hidden" th:field="*{surname}" id="user">
+								<input type="hidden" th:field="*{email}" id="user">
+								<input type="hidden" th:field="*{username}" id="user">
+								<input type="hidden" th:field="*{roles}" id="user">
+							</div>
+							<div class="col-12 mt-4">
+								<ul>
+									<li style="color: red;" th:each="err : ${#fields.allErrors()}" th:text="${err}"></li>
+								</ul>
+							</div> 
+							
+							<div th:if="${addMode}">
+								<button class="mt-2" type="submit">Aggiungi</button>
+							</div>
+							<div th:unless="${addMode}">
+								<button class="mt-2" type="submit">Modifica</button>
+							</div>
+						</form>
+					</div> 
+				</div>
+			</div>
+		</div>
+	</section>
+</main>
+	<script th:src="@{/webjars/bootstrap/5.1.3/js/bootstrap.bundle.min.js}"></script>
+
+</body>
+
+</html>
