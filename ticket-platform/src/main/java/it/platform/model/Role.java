@@ -17,19 +17,6 @@ public class Role {
 	
 	@NotNull
 	private String name;
-
-	
-	public static boolean isUserRole(User user) {
-		Boolean message = false;
-		Set<Role> roles = user.getRoles();
-		for (Role roleFind : roles) {
-			if (roleFind.getName().equals("USER")) {
-				message = true;
-				break;
-			} 
-		}
-		return message;
-	}
 	
 
 	public Integer getId() {
