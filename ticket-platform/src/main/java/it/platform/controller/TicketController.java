@@ -21,13 +21,13 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import it.platform.model.Note;
-import it.platform.model.Role;
 import it.platform.model.Ticket;
 import it.platform.model.User;
 import it.platform.repository.CategoryRepository;
 import it.platform.repository.NoteRepository;
 import it.platform.repository.TicketRepository;
 import it.platform.repository.UserRepository;
+import it.platform.utility.Utility;
 import jakarta.validation.Valid;
 
 @Controller
@@ -54,15 +54,15 @@ public class TicketController {
 		List<Ticket> listTicket = new ArrayList<Ticket>();
 		String username = userDetails.getUsername();
 		Optional<User> user = userRepo.findByUsername(username);
-		if (Role.isUserRole(user.get())) {
+		if (Utility.isUserRole(user.get())) {
 			listTicket = ticketRepo.findByUser(user.get());
-			if (Ticket.search(title)) {
+			if (Utility.search(title)) {
 				listTicket.clear();
 				listTicket = findTicketInList(ticketRepo.findByUser(user.get()), title);
 			}
 		} else {
 			listTicket = ticketRepo.findAll();
-			if (Ticket.search(title)) {
+			if (Utility.search(title)) {
 				listTicket.clear();
 				listTicket = ticketRepo.findByTitleContaining(title);
 			}
@@ -78,7 +78,7 @@ public class TicketController {
 		model.addAttribute("userTicketPresent", false);
 		String username = userDetails.getUsername();
 		Optional<User> user = userRepo.findByUsername(username);
-		if(Role.isUserRole(user.get())) {
+		if(Utility.isUserRole(user.get())) {
 			if(isUserTicket(user.get(), id)) {
 				model.addAttribute("userTicketPresent", true);
 			}
@@ -124,7 +124,7 @@ public class TicketController {
 		model.addAttribute("userTicketPresent", false);
 		String username = userDetails.getUsername();
 		Optional<User> user = userRepo.findByUsername(username);
-		if(Role.isUserRole(user.get())) {
+		if(Utility.isUserRole(user.get())) {
 			if(isUserTicket(user.get(), id)) {
 				model.addAttribute("userTicketPresent", true);
 			}
@@ -186,7 +186,7 @@ public class TicketController {
 		model.addAttribute("availableToFillIn", true);
 		String username = userDetails.getUsername();
 		Optional<User> user = userRepo.findByUsername(username);
-		if(Role.isUserRole(user.get())) {
+		if(Utility.isUserRole(user.get())) {
 			if(isUserTicket(user.get(), id)) {
 				model.addAttribute("availableToFillIn", true);
 				
@@ -212,7 +212,7 @@ public class TicketController {
 		model.addAttribute("usersAvailable", userRepo.findByActiveState(true));
 	}
 	
-	private boolean isUserTicket(User user, int id) {
+	protected boolean isUserTicket(User user, int id) {
 		boolean message = false;
 		List<Ticket>  listTicket = ticketRepo.findByUser(user);
 		if(listTicket != null) {

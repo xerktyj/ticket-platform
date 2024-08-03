@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import it.platform.model.Note;
-import it.platform.model.Role;
 import it.platform.model.Ticket;
 import it.platform.model.User;
 import it.platform.repository.NoteRepository;
 import it.platform.repository.TicketRepository;
 import it.platform.repository.UserRepository;
+import it.platform.utility.Utility;
 import jakarta.validation.Valid;
 
 import java.time.LocalDate;
@@ -45,7 +45,7 @@ public class NoteController {
 		model.addAttribute("note", noteRepo.findById(id) );
 		Optional<User> user = userRepo.findByUsername(userDetails.getUsername());
 		Note note = noteRepo.findById(id);
-		if (Role.isUserRole(user.get())) {
+		if (Utility.isUserRole(user.get())) {
 			if (isUserNote(note,user.get())) {
 				model.addAttribute("availableToSee", true);				
 			}
@@ -73,7 +73,7 @@ public class NoteController {
 			@AuthenticationPrincipal UserDetails userDetails){
 		model.addAttribute("addMode", false);
 		Optional<User> user = userRepo.findByUsername(userDetails.getUsername());	
-		if(Role.isUserRole(user.get())) {
+		if(Utility.isUserRole(user.get())) {
 			if(isUserTicket(user.get(), id)) {
 				model.addAttribute("availableToFillIn", true);						
 			}else {
@@ -101,7 +101,7 @@ public class NoteController {
 		note.setDate(LocalDate.now());
 		note.setAuthor(userDetails.getUsername());
 		Optional<User> user = userRepo.findByUsername(userDetails.getUsername());		
-		if (Role.isUserRole(user.get())) {
+		if (Utility.isUserRole(user.get())) {
 			if (isUserNote(note,user.get())) {
 				model.addAttribute("availableToFillIn", true);
 				model.addAttribute("note", note);

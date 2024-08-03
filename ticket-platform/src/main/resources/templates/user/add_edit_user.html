@@ -37,7 +37,7 @@
 									th:errorClass="is-invalid">
 								<div th:if="${#fields.hasErrors('username')}" class="invalid-feedback">
 									<ul>
-										<li th:each="err : ${#fields.errors('title')}" th:text="${err}"></li>
+										<li th:each="err : ${#fields.errors('username')}" th:text="${err}"></li>
 									</ul>
 								</div>
 							</div>
