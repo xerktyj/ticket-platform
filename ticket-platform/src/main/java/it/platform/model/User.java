@@ -29,7 +29,7 @@ public class User {
 	@NotNull
 	@NotBlank(message="mettere una username non già utilizzata")
 	@Size(min=1,max=100)
-	@Column(name="username", nullable=false)
+	@Column(name="username", nullable=false, unique= true)
 	private String username;
 	
 	@NotNull
@@ -42,7 +42,7 @@ public class User {
 	@NotBlank(message="mettere una password")
 	@Size(min=1,max=100)
 	@Email
-	@Column(name="email", nullable=false)
+	@Column(name="email", nullable=false, unique = true)
 	private String email;
 
 	@NotNull
