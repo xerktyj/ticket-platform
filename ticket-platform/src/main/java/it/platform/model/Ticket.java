@@ -82,15 +82,6 @@ public class Ticket {
 	)
     @JsonManagedReference
 	private List<Category> categories;
-	
-    
-    public static boolean search(String name) {
-    	boolean message = false;
-		if (name != null) {
-			message = true;
-		}
-		return message;
-    }
 
 
 	public Integer getId() {
