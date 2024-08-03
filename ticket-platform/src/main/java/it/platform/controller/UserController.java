@@ -1,11 +1,13 @@
 package it.platform.controller;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -18,12 +20,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import it.platform.model.Role;
 import it.platform.model.Ticket;
 import it.platform.model.User;
 import it.platform.repository.RoleRepository;
 import it.platform.repository.TicketRepository;
 import it.platform.repository.UserRepository;
+import it.platform.utility.Utility;
 import jakarta.validation.Valid;
 
 @Controller
@@ -59,7 +61,7 @@ public class UserController {
 	private String dataUser(@PathVariable int id, Model model,@AuthenticationPrincipal UserDetails userDetails) {
 		model.addAttribute("availableToSee", false);
 		Optional<User> user = userRepo.findByUsername(userDetails.getUsername());
-		if (Role.isUserRole(user.get())) {
+		if (Utility.isUserRole(user.get())) {
 			if(user.get().getId() == id) {
 				model.addAttribute("availableToSee", true);
 			}
@@ -82,24 +84,28 @@ public class UserController {
 	
 	//BLOCCO USER CON SECURITY
 	@PostMapping("/adduser")
-	public String storeTicket(@Valid @ModelAttribute("user") User formUser , BindingResult bindingResult, Model model) {
+	public String storeTicket(@Valid @ModelAttribute("user") User formUser , BindingResult bindingResult, Model model)throws IOException {
 		model.addAttribute("addMode", true);	
 		formUser.setPassword(getEncodePassword(formUser));
-		
-		if(isUsernameUnique(formUser)) {
-				bindingResult.addError(new ObjectError("user","inserire un'altra username che non sia già stata usata"));
-			}
-		
-		if(formUser.getRoles().isEmpty()) {
-			bindingResult.addError(new ObjectError("user","inserire il ruolo"));
+					
+		if (formUser.getRoles().isEmpty()) {
+			bindingResult.addError(new ObjectError("user", "inserire il ruolo"));
 		}
+	    
 		
 		if (bindingResult.hasErrors()) {
-			addEditPostModelBinding(model);
+			addEditPostModelBinding(model,formUser);
 			return "user/add_edit_user";
 		}
-		model.addAttribute("availableToSee", true);
-		userRepo.save(formUser);	
+		try {
+			model.addAttribute("availableToSee", true);
+			userRepo.save(formUser);
+		}catch ( DataIntegrityViolationException e) {
+			bindingResult.addError(new ObjectError("user",e.getMessage()));  
+			addEditPostModelBinding(model,formUser);
+			return "user/add_edit_user";
+		}
+			
 		return "user/data_user";		
 	}
 	
@@ -113,20 +119,16 @@ public class UserController {
 		model.addAttribute("availableToFillIn", false);
 		model.addAttribute("rolesList", roleRepo.findAll());
 		Optional<User> user = userRepo.findByUsername(userDetails.getUsername());		
-		if (Role.isUserRole(user.get())) {
+		if (Utility.isUserRole(user.get())) {
 			if (user.get().getId() == id) {
 				model.addAttribute("availableToFillIn", true);
-				String password = user.get().getPassword();
-				password = password.replace("{noop}", "");
-				user.get().setPassword(password);
+				user.get().setPassword(getNotCodifiedPassword(user.get()));
 				model.addAttribute("user", user.get());
 			}
 
 		} else {
 			User userInfo = userRepo.findById(id);
-			String password = userInfo.getPassword();
-			password = password.replace("{noop}", "");
-			userInfo.setPassword(password);
+			userInfo.setPassword(getNotCodifiedPassword(userInfo));
 			model.addAttribute("availableToFillIn", true);
 			model.addAttribute("user", userInfo);
 		}
@@ -139,16 +141,18 @@ public class UserController {
 		model.addAttribute("addMode", false);
 		formUser.setPassword(getEncodePassword(formUser));
 		
-		if(isUsernameUnique(formUser)) {
-			bindingResult.addError(new ObjectError("user","inserire un'altra username che non sia già stata usata"));
-		}
-		
 		if (bindingResult.hasErrors()) {
-			addEditPostModelBinding(model);
+			addEditPostModelBinding(model, formUser);
 			return "user/add_edit_user";
 		}	
-		model.addAttribute("availableToSee", true);
-		userRepo.save(formUser);		
+		try {
+			model.addAttribute("availableToSee", true);
+			userRepo.save(formUser);
+		}catch ( DataIntegrityViolationException e) {
+			bindingResult.addError(new ObjectError("user",e.getMessage()));  
+			addEditPostModelBinding(model,formUser);
+			return "user/add_edit_user";
+		}		
 		return "user/data_user";
 		
 	}
@@ -170,22 +174,18 @@ public class UserController {
 	}
 	
 	//metodi
-	private void addEditPostModelBinding(Model model) {
+	private void addEditPostModelBinding(Model model,User formUser) {
 		model.addAttribute("availableToFillIn", true);
-		model.addAttribute("rolesList", roleRepo.findAll());		
+		model.addAttribute("rolesList", roleRepo.findAll());
+		String password = formUser.getPassword();
+		password = password.replace("{noop}", "");
+		formUser.setPassword(password);
 	}
 	
-	
-	private boolean isUsernameUnique(User formUser) {
-		boolean message = false;
-		for(User user : userRepo.findAll()) {
-			if(user.getUsername().equals(formUser.getUsername())) {
-				if(user.getId()!=formUser.getId()) {
-					message = true;
-				}				
-			}
-		}
-		return message;
+	private String getNotCodifiedPassword(User user){
+		String password = user.getPassword();
+		password = password.replace("{noop}", "");
+		return password;
 	}
 	
 	private String getEncodePassword(User formUser) {
